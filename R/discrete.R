@@ -9,10 +9,31 @@
 #' @examples
 #' @name axes
 #' @export
-axes <- function(...) UseMethod("axes")
-#' @name axes
+axes <- function(x, ...) UseMethod("axes")
+
+
+axes.BasicRaster <- function(x, ...) {
+  ## is this enough? what about the Quad?
+  if (inherits(x, "RasterStack")) {
+    nl <- length(x@layers)
+  } else {
+    nl <- x@file@nbands
+  }
+  dm <- c(x@ncols, x@nrows, if (nl > 1) nl else NULL)
+  ex <- unlist(lapply(c("xmin", "xmax"), function(a) slot(x, a)))
+  ey <- unlist(lapply(c("ymin", "ymax"), function(a) slot(x, a)))
+  zs <- x@z
+  if (length(zs) < 1) {
+    ez <- c(0, nl)
+  }
+
+
+}
+
+
+#' @name axes_maker
 #' @export
-axes.default <- function(...) {
+axes_maker <- function(...) {
   lst <- list(...)
   nms <- names(lst)
   print(nms)
@@ -20,8 +41,6 @@ axes.default <- function(...) {
   lst <- lapply(seq_along(lst), function(x) {lst[[x]]$name <- nms[x]; lst[[x]]})
   structure(lst, class = c("axes", "list"))
 }
-
-
 
 #' Abstract axis transform.
 #'
