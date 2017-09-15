@@ -2,13 +2,9 @@
 % Please edit documentation in R/discrete.R
 \name{axes}
 \alias{axes}
-\alias{axes}
-\alias{axes.default}
 \title{Collection of axes.}
 \usage{
-axes(...)
-
-\method{axes}{default}(...)
+axes(x, ...)
 }
 \arguments{
 \item{...}{d_axis inputs}

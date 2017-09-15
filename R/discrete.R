@@ -11,7 +11,7 @@
 #' @export
 axes <- function(x, ...) UseMethod("axes")
 
-
+#' @export
 axes.BasicRaster <- function(x, ...) {
   ## is this enough? what about the Quad?
   if (inherits(x, "RasterStack")) {
@@ -20,8 +20,8 @@ axes.BasicRaster <- function(x, ...) {
     nl <- x@file@nbands
   }
   dm <- c(x@ncols, x@nrows, if (nl > 1) nl else NULL)
-  ex <- unlist(lapply(c("xmin", "xmax"), function(a) slot(x, a)))
-  ey <- unlist(lapply(c("ymin", "ymax"), function(a) slot(x, a)))
+  ex <- unlist(lapply(c("xmin", "xmax"), function(a) slot(slot(x, "extent"), a)))
+  ey <- unlist(lapply(c("ymin", "ymax"), function(a) slot(slot(x, "extent"), a)))
   zs <- x@z
   if (length(zs) < 1) {
     ez <- c(0, nl)
@@ -65,7 +65,7 @@ axes_maker <- function(...) {
 #' Raster is terribly powerful though, as an I/O and "abstract discretization" engine, and can be coaxed
 #' into service for rectlinear and curvlinear cases relatively easily (see angstroms).
 #'
-#' Rectlinear that isn't degenerate also has the problem of explicit bounds on the interval,
+#' Rectilinear that isn't degenerate also has the problem of explicit bounds on the interval,
 #' which it usually won't specify in NetCDF as it has "centre coordinates". That's not always
 #' true but it's wild enough to be a problem.
 #'

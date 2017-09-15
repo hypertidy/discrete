@@ -40,7 +40,7 @@ The raster package only deals with the affine case (support for 3-parameters per
 Raster is terribly powerful though, as an I/O and "abstract discretization" engine, and can be coaxed
 into service for rectlinear and curvlinear cases relatively easily (see angstroms).
 
-Rectlinear that isn't degenerate also has the problem of explicit bounds on the interval,
+Rectilinear that isn't degenerate also has the problem of explicit bounds on the interval,
 which it usually won't specify in NetCDF as it has "centre coordinates". That's not always
 true but it's wild enough to be a problem.
 
