@@ -1,8 +1,8 @@
 library(silicore)
 library(silicate)
 library(sf)
-x <- minimal_mesh[1, ]
-x <- inlandwaters[4, ]
+x <- minimal_mesh[2, ]
+#x <- inlandwaters[4, ]
 #x <- st_as_sf(simpleworld[9, ])
 
 xstart <- function(Xstart, Ystart, dxdy, Y) {
@@ -49,14 +49,20 @@ edges <- setNames(tibble::as_tibble(rbind(cbind(as.matrix(x0), 1:nrow(x0)),
   ungroup() %>% 
   arrange(edge, node)
 
-# rowidx <- seq(min(edges$yi), max(edges$yi))
-# l <- vector("list", length(rowidx))
-# tops <- filter(edges, node == 2) %>% transmute(.x0 = xi, .y0 = yi)
-# bottoms <- filter(edges, node == 1) %>% transmute(.x0 = xi, .y0 = yi)
-# for (irow in rowidx) {
-#   top_x <- filter(tops, .y0 >= irow)
-#   bot_x <- filter(bottoms, .y0 <= irow + 1)
-# }
+em <- as.matrix(edges[, 1:2])
+wideys <- cbind(em[seq(1, nrow(edges), by = 2), ], 
+                em[seq(2, nrow(edges), by = 2), ])
+colnames(wideys) <- c(".x0", ".y0", ".x1", ".y1")
+wideys <- as_tibble(wideys)
+wideys$dxdy <- edges$dxdy[seq(1, nrow(edges), by = 2)]
+for (jrow in 1:nrow(r)) {
+  wideys$active <- jrow >= wideys$.y0 & jrow <= wideys$.y1
+  e0 <- wideys %>% filter(active) %>% 
+    mutate(xfirst = min(.x0, .x1))
+  e0$odd <- seq_len(nrow(e0))
+  xstart(228, 45, -17.4, jrow)
+  if (nrow(e0) > 0 ) break; 
+}
 
 plot(setExtent(setValues(r, seq(ncell(r))), extent(0, ncol(r), 0, nrow(r))))
 points(sc$coord[c("i", "j")])
