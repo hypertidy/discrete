@@ -2,8 +2,8 @@ library(silicore)
 library(silicate)
 library(sf)
 x <- minimal_mesh[1, ]
-x <- inlandwaters[1, ]
-#x <- st_as_sf(anglr::simpleworld)
+#x <- inlandwaters[1, ]
+#x <- st_as_sf(anglr::simpleworld)[9, ]
 eget <- function(i = 1) {
   edges %>% filter(edge == i)
 }
@@ -13,7 +13,7 @@ edraw <- function(i = 1) {
 }
 
 library(raster)
-r <- raster(extent(x) + 0.5, nrows = 500, ncols = 3000)
+r <- raster(extent(x) + 0.5, nrows = 150, ncols = 130)
 
 #r <- raster(extent(1.5, 3, -0.1, 0.5), nrows = 20, ncols = 30)
 #x <- st_sf(geometry = st_sfc(
@@ -101,11 +101,15 @@ system.time({
   for (jrow in min(yrange):max(yrange)) {
     active <- jrow >= wideys$.y0 & jrow <= wideys$.y1
     if (any(active)) {
-      e0 <- wideys %>% filter(active) %>% select(.x0, .x1, .y0, .y1, dxdy)
-      e0 <- e0[order(pmin(e0$.x0, e0$.x1)), ]
+      e0 <- wideys %>% filter(active) %>% select(.x0, .y0, .x1, .y1, dxdy)
+      e0 <- e0[order(pmax(e0$.x0,e0$.x1)), ]
+      #e0 <- e0[order(e0$.x0), ]
       e0$X0 <- pmin(e0$.x0, e0$.x1)
       e0$Y0 <- ifelse(e0$dxdy < 0, e0$.y1, e0$.y0)
-      e0 <- e0 %>% mutate(Xstart = xstart(X0, Y0, dxdy, jrow))
+      e0 <- e0 %>% mutate(Xstart = xstart(X0, Y0, dxdy, jrow)) %>% dplyr::select(.x0, .y0,
+                                                                                 .x1, .y1,
+                                                                                 dxdy, X0, Y0,
+                                                                                 Xstart)
 
       # print(nrow(e0))
       inner <- vector("list", nrow(e0)/2)
@@ -115,8 +119,8 @@ system.time({
           x_start <- min(c(max(c(1, e0$Xstart[i])), ncol(r)))
         } else {            ## EVEN
           x_end <- min(c(max(c(1, e0$Xstart[i])), ncol(r)))
-          #run <- seq(x_start, x_end)
-          #    points(cbind(run, jrow), pch = ".")
+          run <- seq(x_start, x_end)
+              points(cbind(run, jrow), pch = ".")
           inner[[i]] <- c(x_start, x_end)
         }
       }
