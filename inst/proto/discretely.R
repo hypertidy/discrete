@@ -3,7 +3,11 @@ library(silicate)
 library(sf)
 x <- minimal_mesh[1, ]
 x <- inlandwaters[4, ]
-#x <- st_as_sf(anglr::simpleworld[1:4, ])
+#x <- st_as_sf(anglr::simpleworld)
+
+#x <- st_sf(geometry = st_sfc(
+#  st_polygon(list(cbind(c(0, 1, 2, 0), c(0, 1, 0, 0))))
+#))
 
 xstart <- function(Xstart, Ystart, dxdy, Y) {
   ## Ystart is the top of the edge
@@ -54,14 +58,8 @@ wideys <- cbind(em[seq(1, nrow(edges), by = 2), ],
 colnames(wideys) <- c(".x0", ".y0", ".x1", ".y1")
 wideys <- as_tibble(wideys)
 wideys$dxdy <- edges$dxdy[seq(1, nrow(edges), by = 2)]
-#wideys$dxdy[is.na(wideys$dxdy)] <- 1
-#plot(setExtent(setValues(r, seq(ncell(r))), extent(0, ncol(r), 0, nrow(r))))
 plot(extent(0, ncol(r), 0, nrow(r)))
-points(sc$coord[c("i", "j")])
-#abline(v = range(edges$xi), h = nrow(r) - range(edges$yi) + 1, lty = 2)
-#abline(v = xs)
-#abline(h = jrow)
-#system.time({
+points(sc$coord[c("i", "j")], pch = ".")
 for (jrow in 1:nrow(r)) {
   active <- jrow >= wideys$.y0 & jrow <= wideys$.y1
   if (any(active)) {
@@ -70,40 +68,23 @@ for (jrow in 1:nrow(r)) {
     e0$X0 <- pmin(e0$.x0, e0$.x1)
     e0$Y0 <- ifelse(e0$dxdy < 0, e0$.y1, e0$.y0)
     e0 <- e0 %>% mutate(Xstart = xstart(X0, Y0, dxdy, jrow))
+
+    e0 <- e0 %>% distinct(Xstart, .keep_all= TRUE)
     if (nrow(e0) > 0 ) {
      # stop()
       xints <- e0$Xstart
       #if (length(xints) == 3) stop()
-
-      if (length(xints) %% 2 > 0) xints <- c(xints, ncol(r))
+if (length(unique(xints)) == 1) next;
       xints <- matrix(xints, ncol = 2, byrow = TRUE)
       xints[,1] <- floor(xints[,1])
       xints[,2] <- ceiling(xints[,2])
-      ## now delete any zerolength runs
-      #xints <- xints[(xints[,2] - xints[,1]) > 0, , drop = FALSE]
-      #xints <- xints[seq(1, nrow(xints), by = 2), , drop = FALSE]
+      #if (any(is.na(xints))) stop()
+      #xints[is.na(xints)] <- 1
       xints <- na.omit(xints)
-      for (j in seq_len(nrow(xints))) {
+     for (j in seq_len(nrow(xints))) {
         points(cbind(seq(xints[j, 1], xints[j, 2]), jrow), pch = ".")
       }
     }
   }
 }
 
-
-
-# eget <- function(i = 1) {
-#   edges %>% filter(edge == i)
-# }
-# edraw <- function(i = 1) {
-#   eget(i) %>% select(xi, yi) %>% lines(lwd = 3)
-# invisible(NULL)
-# }
-# system.time({
-# l <- split(edges, edges$edge)
-# for (i in seq_along(l)) {
-#   y <- l[[i]]
-#   purrr::walk(seq(y$yi[1], y$yi[2]),
-#               ~abline(v = xstart(y$xi[1], y$yi[1], y$dxdy[1], .x)))
-# }
-# })
