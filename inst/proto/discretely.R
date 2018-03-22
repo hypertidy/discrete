@@ -2,7 +2,7 @@ library(silicore)
 library(silicate)
 library(sf)
 x <- minimal_mesh[1, ]
-#x <- inlandwaters[1, ]
+#x <- inlandwaters[2, ]
 #x <- st_as_sf(anglr::simpleworld)[9, ]
 eget <- function(i = 1) {
   edges %>% filter(edge == i)
@@ -11,9 +11,16 @@ edraw <- function(i = 1) {
   eget(i) %>% select(xi, yi) %>% lines(lwd = 3)
   invisible(NULL)
 }
+pget <- function(i = 1) {
+  wideys %>% slice(i)
+}
+pdraw <- function(i = 1) {
+  x <- pget(i)
+  segments(x$.x0, x$.y0, x$.x1, x$.y1)
+}
 
 library(raster)
-r <- raster(extent(x) + 0.5, nrows = 150, ncols = 130)
+r <- raster(extent(x) + 0.5, nrows = 50, ncols = 60)
 
 #r <- raster(extent(1.5, 3, -0.1, 0.5), nrows = 20, ncols = 30)
 #x <- st_sf(geometry = st_sfc(
@@ -102,7 +109,8 @@ system.time({
     active <- jrow >= wideys$.y0 & jrow <= wideys$.y1
     if (any(active)) {
       e0 <- wideys %>% filter(active) %>% select(.x0, .y0, .x1, .y1, dxdy)
-      e0 <- e0[order(pmax(e0$.x0,e0$.x1)), ]
+
+      e0 <- e0[order(pmin(e0$.x0,e0$.x1), pmax(e0$.x0, e0$.x1)), ]
       #e0 <- e0[order(e0$.x0), ]
       e0$X0 <- pmin(e0$.x0, e0$.x1)
       e0$Y0 <- ifelse(e0$dxdy < 0, e0$.y1, e0$.y0)
@@ -119,8 +127,8 @@ system.time({
           x_start <- min(c(max(c(1, e0$Xstart[i])), ncol(r)))
         } else {            ## EVEN
           x_end <- min(c(max(c(1, e0$Xstart[i])), ncol(r)))
-          run <- seq(x_start, x_end)
-              points(cbind(run, jrow), pch = ".")
+         # run <- seq(x_start, x_end)
+        #points(cbind(run, jrow), pch = 1, cex = .6)
           inner[[i]] <- c(x_start, x_end)
         }
       }
@@ -128,3 +136,19 @@ system.time({
     }
   }
 })
+
+
+## for lines we need to not remove them in the edge list (hmmm)
+## abstract cell representation
+## row is raster row, x is pixel where edge intercepted
+dl <- purrr::imap_dfr(l,
+    ~if(is.null(.x)) tibble::tibble(row = .y, x = NA_integer_) else
+      tibble::tibble(row = .y, x = unlist(.x)))
+
+## convert row index to cell
+linecells <- purrr::map_df(purrr::transpose(dl %>% filter(!is.na(x))), ~tibble::tibble(row = .x[["row"]], cell = cellFromRowCol(r, .x[["row"]], .x[["x"]])))
+
+rl <- setValues(r, NA)
+rl[linecells$cell] <- 1
+plot(rl)
+
