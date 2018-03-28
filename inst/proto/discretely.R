@@ -20,7 +20,7 @@ pdraw <- function(i = 1) {
 }
 
 library(raster)
-r <- raster(extent(x) + 0.5, nrows = 50, ncols = 60)
+r <- raster(extent(x) + 0.5, nrows = 250, ncols = 260)
 
 #r <- raster(extent(1.5, 3, -0.1, 0.5), nrows = 20, ncols = 30)
 #x <- st_sf(geometry = st_sfc(
@@ -151,4 +151,5 @@ linecells <- purrr::map_df(purrr::transpose(dl %>% filter(!is.na(x))), ~tibble::
 rl <- setValues(r, NA)
 rl[linecells$cell] <- 1
 plot(rl)
+
 

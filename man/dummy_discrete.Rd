@@ -2,10 +2,10 @@
 % Please edit documentation in R/tiling-axes.R
 \name{dummy_discrete}
 \alias{dummy_discrete}
-\title{a default discretization for testing, called by `disc_rete`}
+\title{a default discretization for testing, called by `dc_discrete`}
 \usage{
 dummy_discrete()
 }
 \description{
-a default discretization for testing, called by `disc_rete`
+a default discretization for testing, called by `dc_discrete`
 }

@@ -24,27 +24,15 @@ tile_dim <- function(dim, tile = NULL) {
 #' @param x 6 figure geotransform as returned by raster_info
 #' @param dim 2 figure dimXY as returned by raster_info
 transform6 <- function(x, dim) {
-  disc_rete(mins = c(x[1], x[4] + dim[2] * x[6]),
+  dc_discrete(mins = c(x[1], x[4] + dim[2] * x[6]),
             maxs = c(x[1] + dim[1] * x[2], x[4]),
             dims = dim)
 }
-#' a default discretization for testing, called by `disc_rete`
+#' a default discretization for testing, called by `dc_discrete`
 dummy_discrete <- function() {
   as.data.frame(list(name = c("x", "y"), min = c(0, 0), max = c(3, 4), dim = c(3, 4)), stringsAsFactors = FALSE)
 }
-#' table of axes
-#' @param mins minimum coordinates
-#' @param maxs maximum coordinates
-#' @param dims axis length
-#' @param name optional name for each axis
-disc_rete <- function(mins, maxs, dims, name = NULL) {
-  if (missing(mins)) return(dummy_discrete())
-  stopifnot(length(mins) == length(maxs))
-  stopifnot(length(mins) == length(dims))
-  walphabet <- c(letters[-20], letters[20])
-  if (is.null(name)) name <- walphabet[(seq_along(mins) + 21) %% 26 + 1]
-  data.frame(name = name, min = mins, max = maxs, dim = dims)
-}
+
 #' the coordinates of the edges of cells
 #'
 #' @param x (ordered) row of axes
